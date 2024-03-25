@@ -18,7 +18,7 @@ Solución al Challenge: Cupón de compra
 
 ## Configuración
 
-- Clonar el repositorio: https://github.com/ogrico/MercadolibreChallengue.git
+- Clonar el repositorio: https://github.com/ogrico/MercadolibreChallengue.git y cambiar a la rama integration
 - Compilar y empaquetar op1: En una terminal en la ubicación del proyecto clonado ejecutar mvn package
 - Compilar y empaquetar op2: Utilizando un IDE de desarrollo utilizar los Lifecycle de maven con el apartado gradico IDE einiciar el package
 
