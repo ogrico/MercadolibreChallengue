@@ -32,12 +32,10 @@ Solución al Challenge: Cupón de compra
 
 - El servicio expone 2 endpoints coupon y stats
 - /api/challengeMercadolibre/coupon: El cual espera como entrada un json con:
-   * El siteId (lacción de mercadolire "Argentina MLA", "Colombia MCO", etc).
    * El items_ids (Colección con los ids de los productos a comprar).
    * amount (Valor del cupon a utilizar) 
     ```json
   {
-   "siteId":"MLA",
    "item_ids":[
       "MLA1578016358",
       "MLA3",
