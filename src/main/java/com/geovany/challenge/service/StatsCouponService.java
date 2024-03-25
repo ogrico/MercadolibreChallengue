@@ -3,15 +3,16 @@ package com.geovany.challenge.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.geovany.challenge.dto.stats.ResponseStats;
 import com.geovany.challenge.dto.stats.StatsCoupon;
+import com.sun.tools.javac.Main;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -42,16 +43,17 @@ public class StatsCouponService {
 
         StatsCoupon[] filterStatsCoupons = map.values().toArray(new StatsCoupon[0]);
         Arrays.sort(filterStatsCoupons, Comparator.comparingInt(StatsCoupon::getQuantity).reversed());
+        int index = filterStatsCoupons.length;
 
-        if (statsCoupons.length >= 4) {
-            StatsCoupon[] tempResponse = new StatsCoupon[5];
-           for (int i = 0; i < 5; i++) {
-               tempResponse[i] = filterStatsCoupons[i];
-           }
-           return tempResponse;
+        if (filterStatsCoupons.length > 4) {
+            index = 5;
         }
+        StatsCoupon[] tempResponse = new StatsCoupon[index];
+        for (int i = 0; i < index; i++) {
+            tempResponse[i] = filterStatsCoupons[i];
+        }
+        return tempResponse;
 
-        return statsCoupons;
 
     }
 
@@ -61,23 +63,32 @@ public class StatsCouponService {
 
         try {
 
-            String filePath = "src/main/resources/StatsCoupon.json";
+            URL resourceUrl = Main.class.getClassLoader().getResource("StatsCoupon.json");
 
-            if (!Files.exists(Paths.get(filePath))) {
-                responseStats.setMsg("Registros no encontrados");
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseStats);
-            }
-            ObjectMapper objectMapper = new ObjectMapper();
-            StatsCoupon[] statsCoupons = objectMapper.readValue(new File(filePath), StatsCoupon[].class);
+            if (resourceUrl != null) {
+                String filePath = resourceUrl.getPath();
+                if (!Files.exists(Paths.get(filePath))) {
+                    responseStats.setMsg("Registros no encontrados");
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseStats);
+                }
+                ObjectMapper objectMapper = new ObjectMapper();
+                StatsCoupon[] statsCoupons = objectMapper.readValue(new File(filePath), StatsCoupon[].class);
 
-            if (statsCoupons == null || statsCoupons.length == 0) {
-                responseStats.setMsg("No existen registros para mostrar");
+                if (statsCoupons == null || statsCoupons.length == 0) {
+                    responseStats.setMsg("No existen registros para mostrar");
+                    return ResponseEntity.status(HttpStatus.OK).body(responseStats);
+                }
+
+                responseStats.setMsg("Top 5 productos más favoritos");
+                responseStats.setStatsCoupon(topFive(statsCoupons));
                 return ResponseEntity.status(HttpStatus.OK).body(responseStats);
+            } else {
+                logger.error("Error en la lectura de los registros");
+                responseStats.setMsg("Error en la lectura de los registros");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseStats);
             }
 
-            responseStats.setMsg("Top 5 productos más favoritos");
-            responseStats.setStatsCoupon(topFive(statsCoupons));
-            return ResponseEntity.status(HttpStatus.OK).body(responseStats);
+
         } catch (IOException e) {
             logger.error("Error en la lectura de los registros", e);
             responseStats.setMsg("Error en la lectura de los registros");
