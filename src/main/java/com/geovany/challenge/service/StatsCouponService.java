@@ -24,8 +24,6 @@ import java.util.Map;
 public class StatsCouponService {
 
     private static final Logger logger = LoggerFactory.getLogger(CouponService.class);
-    @Value("file:/home/site/wwwroot/StatsCoupon.json")
-    private Resource resource;
 
     private StatsCoupon[] topFive(StatsCoupon[] statsCoupons) {
 
@@ -63,16 +61,16 @@ public class StatsCouponService {
         ResponseStats responseStats = new ResponseStats();
 
         try {
-            // Obtener el archivo JSON del recurso
-            File jsonFile = resource.getFile();
+            String filePath = "src/main/resources/StatsCoupon.json";
+            File file = new File(filePath);
 
-            if (!jsonFile.exists()) {
+            if (!file.exists()) {
                 responseStats.setMsg("Registros no encontrados");
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseStats);
             }
 
             ObjectMapper objectMapper = new ObjectMapper();
-            StatsCoupon[] statsCoupons = objectMapper.readValue(jsonFile, StatsCoupon[].class);
+            StatsCoupon[] statsCoupons = objectMapper.readValue(file, StatsCoupon[].class);
 
             if (statsCoupons == null || statsCoupons.length == 0) {
                 responseStats.setMsg("No existen registros para mostrar");

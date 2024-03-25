@@ -11,7 +11,7 @@ public class MessageService {
 
     public ResponseEntity<String> message() {
 
-        String json = "{\"Metodo coupon\":\"https://challenguemercadolibregeovanyrico.azurewebsites.net/api/challengeMercadolibre/coupon\", \"Metodo stats\":\"https://challenguemercadolibregeovanyrico.azurewebsites.net/api/challengeMercadolibre/coupon/stats\"}";
+        String json = "{\"Metodo coupon\":\"localhost:8084/api/challengeMercadolibre/coupon\", \"Metodo stats\":\"localhost:8084/api/challengeMercadolibre/coupon/stats\"}";
 
         return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(json);
     }

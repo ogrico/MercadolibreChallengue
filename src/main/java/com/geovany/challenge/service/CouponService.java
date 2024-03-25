@@ -28,8 +28,6 @@ import java.util.concurrent.CompletableFuture;
 public class CouponService {
 
     private static final Logger logger = LoggerFactory.getLogger(CouponService.class);
-    @Value("file:/home/site/wwwroot/StatsCoupon.json")
-    private Resource resource;
 
     public ResponseEntity<ResponseCoupon> applyCoupon(Coupon coupon) {
 
@@ -103,27 +101,21 @@ public class CouponService {
 
     private void writeJson(ProductDetail[] newProductDetails) {
         try {
-            // Obtener el archivo JSON del recurso
-            File jsonFile = resource.getFile();
 
+            String filePath = "src/main/resources/StatsCoupon.json";
             ObjectMapper objectMapper = new ObjectMapper();
 
-            // Leer los datos actuales del archivo JSON
-            ProductDetail[] currentProductDetails;
-            if (jsonFile.exists()) {
-                currentProductDetails = objectMapper.readValue(jsonFile, ProductDetail[].class);
-            } else {
-                currentProductDetails = new ProductDetail[0];
-            }
-
-            // Extender el array actual con los nuevos detalles de productos
+            // Se crear un array de ProductDetail con el contenido del archivo json
+            ProductDetail[] currentProductDetails = objectMapper.readValue(new File(filePath), ProductDetail[].class);
+            // Se exiende la longitud del arry actual má la cantidad de elementos que contiene la variable newProductDetails
             ProductDetail[] tempProductDetails = Arrays.copyOf(currentProductDetails, currentProductDetails.length + newProductDetails.length);
+            // Se copia los elementos del array newProductDetails en el tempProductDetails generado anteriormente
             System.arraycopy(newProductDetails, 0, tempProductDetails, currentProductDetails.length, newProductDetails.length);
 
-            // Escribir el array extendido de nuevo en el archivo JSON
-            objectMapper.writeValue(jsonFile, tempProductDetails);
+            objectMapper.writeValue(new File(filePath), tempProductDetails);
+
         } catch (IOException e) {
-            logger.error("Error al trabajar con el archivo JSON", e);
+            logger.error("Error trabajando con el archivo json", e);
         }
     }
 
