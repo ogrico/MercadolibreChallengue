@@ -3,6 +3,7 @@ package com.geovany.challenge.controller;
 import com.geovany.challenge.dto.coupon.Coupon;
 import com.geovany.challenge.dto.stats.ResponseStats;
 import com.geovany.challenge.service.CouponService;
+import com.geovany.challenge.service.MessageService;
 import com.geovany.challenge.service.StatsCouponService;
 import com.geovany.challenge.dto.coupon.ResponseCoupon;
 import org.springframework.http.ResponseEntity;
@@ -17,9 +18,17 @@ public class MainController {
     private final CouponService couponService;
     public final StatsCouponService statsCouponService;
 
-    public MainController(CouponService couponService, StatsCouponService statsCouponService) {
+    private final MessageService messageService;
+
+    public MainController(CouponService couponService, StatsCouponService statsCouponService, MessageService messageService) {
         this.couponService = couponService;
         this.statsCouponService = statsCouponService;
+        this.messageService = messageService;
+    }
+
+    @GetMapping("/message")
+    public ResponseEntity<String> message(){
+        return messageService.message();
     }
 
     @PostMapping("/coupon")
