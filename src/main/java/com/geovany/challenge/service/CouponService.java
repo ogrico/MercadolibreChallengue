@@ -29,17 +29,33 @@ public class CouponService {
 
     public ResponseEntity<ResponseCoupon> applyCoupon(Coupon coupon) {
 
+        ResponseCoupon responseCoupon = new ResponseCoupon();
+
+        if (coupon.getItem_ids() == null || coupon.getAmount() == null) {
+            responseCoupon.setMsg("Se deben de enviar los items para continuar");
+            return ResponseEntity.status(HttpStatus.OK).body(responseCoupon);
+        }
+
+
         String[] items = filterItems(coupon.getItem_ids());
         ProductDetail[] productDetails = getPriceItems(items);
+
+        if (items.length == 0) {
+            responseCoupon.setMsg("No hay items para procesar");
+            return ResponseEntity.status(HttpStatus.OK).body(responseCoupon);
+        }
+
+        if (coupon.getAmount() == null) {
+            responseCoupon.setMsg("Se debe enviar el valor de amount");
+            return ResponseEntity.status(HttpStatus.OK).body(responseCoupon);
+        }
+
         writeJson(productDetails);
         Arrays.sort(productDetails, Comparator.comparing(ProductDetail::getPrice));
         BigDecimal remainingCoupon = new BigDecimal(coupon.getAmount());
         int totalItems = 0;
         BigDecimal totalValue = BigDecimal.ZERO;
 
-        if (items.length == 0) {
-            return ResponseEntity.status(HttpStatus.OK).body(new ResponseCoupon(new String[0], totalValue));
-        }
 
         for (ProductDetail product : productDetails) {
             // Validación para ver si el saldo del coupon es mayor o igual que el del item
@@ -58,9 +74,13 @@ public class CouponService {
             finalItems[k] = productDetails[k].getId();
         }
 
-        ResponseCoupon responseCoupon = new ResponseCoupon(finalItems, totalValue);
+        responseCoupon.setMsg("Ok");
+        responseCoupon.setItem_ids(finalItems);
+        responseCoupon.setTotal(totalValue);
 
         return ResponseEntity.status(HttpStatus.OK).body(responseCoupon);
+
+
     }
 
     private String[] filterItems(String[] items) {

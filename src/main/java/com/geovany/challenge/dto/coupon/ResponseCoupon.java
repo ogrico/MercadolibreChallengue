@@ -3,13 +3,16 @@ package com.geovany.challenge.dto.coupon;
 import java.math.BigDecimal;
 
 public class ResponseCoupon {
+
+    private String msg;
     private String[] item_ids;
     private BigDecimal total;
 
     public ResponseCoupon() {
     }
 
-    public ResponseCoupon(String[] item_ids, BigDecimal total) {
+    public ResponseCoupon(String msg, String[] item_ids, BigDecimal total) {
+        this.msg = msg;
         this.item_ids = item_ids;
         this.total = total;
     }
@@ -30,4 +33,11 @@ public class ResponseCoupon {
         this.total = total;
     }
 
+    public String getMsg() {
+        return msg;
+    }
+
+    public void setMsg(String msg) {
+        this.msg = msg;
+    }
 }
