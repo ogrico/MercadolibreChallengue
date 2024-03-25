@@ -3,9 +3,11 @@ package com.geovany.challenge.service;
 import com.geovany.challenge.dto.coupon.Coupon;
 import com.geovany.challenge.dto.coupon.ProductDetail;
 import com.geovany.challenge.dto.coupon.ResponseCoupon;
+import org.springframework.core.io.Resource;
 import com.mashape.unirest.http.Unirest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,8 @@ import java.util.concurrent.CompletableFuture;
 public class CouponService {
 
     private static final Logger logger = LoggerFactory.getLogger(CouponService.class);
+    @Value("file:/home/site/wwwroot/StatsCoupon.json")
+    private Resource resource;
 
     public ResponseEntity<ResponseCoupon> applyCoupon(Coupon coupon) {
 
@@ -99,20 +103,27 @@ public class CouponService {
 
     private void writeJson(ProductDetail[] newProductDetails) {
         try {
-            String filePath = "src/main/resources/StatsCoupon.json";
+            // Obtener el archivo JSON del recurso
+            File jsonFile = resource.getFile();
+
             ObjectMapper objectMapper = new ObjectMapper();
 
-            // Se crear un array de ProductDetail con el contenido del archivo json
-            ProductDetail[] currentProductDetails = objectMapper.readValue(new File(filePath), ProductDetail[].class);
-            // Se exiende la longitud del arry actual má la cantidad de elementos que contiene la variable newProductDetails
+            // Leer los datos actuales del archivo JSON
+            ProductDetail[] currentProductDetails;
+            if (jsonFile.exists()) {
+                currentProductDetails = objectMapper.readValue(jsonFile, ProductDetail[].class);
+            } else {
+                currentProductDetails = new ProductDetail[0];
+            }
+
+            // Extender el array actual con los nuevos detalles de productos
             ProductDetail[] tempProductDetails = Arrays.copyOf(currentProductDetails, currentProductDetails.length + newProductDetails.length);
-            // Se copia los elementos del array newProductDetails en el tempProductDetails generado anteriormente
             System.arraycopy(newProductDetails, 0, tempProductDetails, currentProductDetails.length, newProductDetails.length);
 
-            objectMapper.writeValue(new File(filePath), tempProductDetails);
-
+            // Escribir el array extendido de nuevo en el archivo JSON
+            objectMapper.writeValue(jsonFile, tempProductDetails);
         } catch (IOException e) {
-            logger.error("Error trabajando con el archivo json", e);
+            logger.error("Error al trabajar con el archivo JSON", e);
         }
     }
 
